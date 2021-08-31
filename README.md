@@ -48,5 +48,18 @@ python manage.py runserver
 ```bash
 http://localhost:8000/products/
 ```
+- Create User 
+
+```bash
+http://localhost:8000/register/
+
+email : Captial,letter Small letter, Character and Minimum 8  - Abc@1234
+password : Password@123
+```
+
+- Note 
+
+By double clicking on the table row you can edit the product details,
+Editing of Image is not Allowed
 
 
