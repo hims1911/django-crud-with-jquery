@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}
+  <meta charset="utf-8">
+  <title>Create Product Page</title>
+  <meta name="Product List View" content="Product List View that shows the avialable products">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
+  <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+{% endblock title %}
+{% block content %}
+<body>
+  <form action="{% url 'create-product' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-heading">Create Product</div>
+                <div class="panel-body">
+                    {% if error_message %}
+                        <p class="bg-danger p-d ml-b">{{ error_message }}</p>
+                    {% endif %}
+                    <div class="form-group clearfix">
+                        <label for="email" class="col-md-4 control-label text-right">Product Name:</label>
+                        <div class="col-md-6">
+                            <input name="Name" value="" type="text" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group clearfix">
+                        <label for="text" class="col-md-4 control-label text-right">Product Description:</label>
+                        <div class="col-md-6">
+                            <input name="Description" type="text" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group clearfix">
+                        <label for="text" class="col-md-4 control-label text-right">Rating:</label>
+                        <div class="col-md-6">
+                            <input name="Rating" type="text" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group clearfix">
+                        <label for="text" class="col-md-4 control-label text-right">Price:</label>
+                        <div class="col-md-6">
+                            <input name="Price" type="text" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group clearfix">
+                        <label for="Image" class="col-md-4 control-label text-right">Image:</label>
+                        <div class="col-md-6">
+                            <input name="Image" type="file" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-md-offset-4">
+                        <input name="Publish product" type="submit" value="Publish Product" class="btn btn-success" /> &nbsp;
+<!--                         <a href="/register">or Register</a> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% csrf_token %}
+{% endblock content %}
+
+</body>

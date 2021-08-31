@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}
+  <meta charset="utf-8">
+  <title>Rolling Stone Top 500 albums of all time</title>
+  <meta name="Product List View" content="Product List View that shows the avialable products">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
+  <link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+{% endblock title %}
+{% block content %}
+{% csrf_token %}
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12" style="margin-left:10px;">
+        <a href="/products/createproduct" type="button" style="color: white; background-color: black;" class="btn btn-secondary">Add New Product</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12" style="margin-top:20px;">
+        <table id="products" class="table table-striped table-bordered" style="width:100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Rating</th>
+              <th>Image</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+  <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script>
+
+      $(document).ready(function() {
+
+          const logged_in = "{{ user.is_authenticated }}";
+          const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+          var data_table = $('#products').DataTable({
+              'serverSide': true,
+              'ajax': '/products/api/showproducts/?format=datatables',
+              'columnDefs': [
+                {className: "editable-product", targets: [0,1,2,3]},
+                { targets: [5], visible: logged_in == 'True' ? true : false},
+              ],
+              'columns': [
+                  {'data': 'Name'},
+                  {'data': 'Description'},
+                  {'data': 'Price'},
+                  {'data': 'Rating'},
+                  {'data': 'Image', "render": function(data, type, row, meta) {
+                      if(data == null){
+                        return null;
+                      }
+                      var image_name = data.split('/');
+                      return '<img src="/media/'+ image_name[4] +'" style="height:100px;"/>';}},
+                  // {'data': 'id', "render": function(data, type, row, meta) {
+                  //     return '<a class="jquery-editback" id="lnk" data-method="patch" href="/products/productupdate/'+ data + '"><i class="fa fa-edit" id="edit-api"></i></a>'; 
+                  // }},
+                  {
+                   'data': 'id', "render": function(data, type, row, meta) {
+                      return '<a class="jquery-postback" data-method="delete" href="/products/api/productupdate/'+ data + '"><i class="fa fa-trash" id="delete-api"></i></a>';
+                   } 
+                  },
+              ]
+          });
+
+
+          if(logged_in == 'True') {
+
+
+            // Function to Delete the Row of the Table
+            $(document).on('click', 'a.jquery-postback', function(e) {
+              e.preventDefault();
+              var $this = $(this);
+              $.post({
+                  type: $this.data('method'),
+                  url: $this.attr('href'),
+                  headers: {'X-CSRFToken': csrftoken}
+              }).done(function (data) {
+                  data_table.ajax.reload();
+              });
+            });
+
+            $(document).on('dblclick', '.editable-product', function() {
+                var value=$(this).text();
+                var input_type="text"
+                var input="<input type='"+input_type+"' class='input-data' value='"+value+"' class='form-control'>";
+                $(this).html(input);
+                $(this).removeClass("editable");
+            });
+
+            
+
+            // on double clicling it should update the database and the datatable reload
+            $(document).on("keypress",".input-data",function(e) {
+                  var key=e.which;
+                  if(key==13) {
+                      var value=$(this).val();
+                      var td=$(this).parent("td");
+                      $(this).remove();
+                      td.html(value);
+                      td.addClass("editable");
+                      var id = data_table.row(td).data()['id'];
+
+                      var $th = td.closest('#products').find('th').eq(td.index());
+                      var column_name = String($th[0].innerText);
+                      var patch = {};
+                      patch[column_name]=value;
+
+                      $.post({
+                        type: 'PATCH',
+                        url: '/products/api/productupdate/'+id,
+                        headers: {'X-CSRFToken': csrftoken},
+                        contentType: "application/json",
+                        data: JSON.stringify(patch)
+                      }).done(function(data) {
+                        data_table.ajax.reload();
+                      }); 
+                  }
+            });
+          }
+      });
+
+  </script>
+{% endblock content %}
