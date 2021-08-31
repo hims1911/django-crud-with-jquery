@@ -53,8 +53,9 @@ http://localhost:8000/products/
 ```bash
 http://localhost:8000/register/
 
-email : Captial,letter Small letter, Character and Minimum 8  - Abc@1234
-password : Password@123
+Email : anything@anything.com
+password should contain: Captial,letter Small letter, Character and Minimum 8  -
+password example : Password@123
 ```
 
 - Note 
